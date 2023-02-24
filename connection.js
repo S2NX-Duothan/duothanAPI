@@ -1,4 +1,4 @@
-const {MongoClient} = require('mongodb');
+import {MongoClient} from 'mongodb';
 let client;
 
 export async function main() {
@@ -32,6 +32,7 @@ export async function readPharmacies() {
     const cursor = await client.db('duothan').collection('pharmacy').find();
     const results = await cursor.toArray();
  
+    return results;
     if(results.length > 0) {
         results.forEach((result)=>{
             console.log(result);
@@ -45,6 +46,8 @@ export async function readPharmacy(pharmacy_license_no) {
     const result = await client.db('duothan').collection('pharmacy').findOne({
         pharmacy_license_no:pharmacy_license_no
     });
+
+    return result;
  
     if(result) {
         console.log(result);
@@ -79,6 +82,7 @@ export async function readDrugs() {
     const cursor = await client.db('duothan').collection('drug').find();
     const results = await cursor.toArray();
  
+    return results;
     if(results.length > 0) {
         results.forEach((result)=>{
             console.log(result);
@@ -93,6 +97,7 @@ export async function readDrug(ndc) {
         ndc:ndc
     });
  
+    return result;
     if(result) {
         console.log(result);
     } else {
@@ -126,6 +131,8 @@ export async function readUsers() {
     const cursor = await client.db('duothan').collection('users').find();
     const results = await cursor.toArray();
  
+    return results;
+
     if(results.length > 0) {
         results.forEach((result)=>{
             console.log(result);
@@ -140,6 +147,8 @@ export async function readUser(email) {
         email:email
     });
  
+    return result;
+
     if(result) {
         console.log(result);
     } else {
@@ -166,33 +175,31 @@ export async function deleteUser(email) {
 export async function signInUser(email, password) {
     const result = await client.db('duothan').collection('users').findOne({
         email:email
-    }).then(async (res)=>{
-        if(res.password == password) {
+    });
+    if(result) {
+        if(result.password == password) {
+            main()
             await client.db('duothan').collection('users').updateOne({
                 email:email
-            }, {$set: {loggin_status:1}});
-            return true;
-        } 
-    }).catch((e)=>{
-        console.log(e);
-    })
-    return false;
+            }, {$set:{login_status:1}});
+            return 1;
+        }
+    }
+    return 0;
 } 
 
-export async function logOutUser(email, password) {
+export async function logOutUser(email) {
     const result = await client.db('duothan').collection('users').findOne({
         email:email
-    }).then(async (res)=>{
-        if(res.password == password) {
-            await client.db('duothan').collection('users').updateOne({
-                email:email
-            }, {$set: {loggin_status:0}});
-            return true;
-        } 
-    }).catch((e)=>{
-        console.log(e);
     })
-    return false;
+    if(result){
+        main()
+        await client.db('duothan').collection('users').updateOne({
+            email:email
+        }, {$set: {login_status:0}});
+        return 1;
+    }
+    return 0;
 } 
 
 // {"_id":{"$oid":"63f86453f92ee8536d113577"},"name":"test","pharmacy_license_no":"test","email":"test","address":"test","district":"test","province":"test","city":"test","operational_hours":"test","owner_nic":"test"}""
