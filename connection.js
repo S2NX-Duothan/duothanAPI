@@ -78,18 +78,19 @@ export async function createDrug(newDrug) {
     console.log(`New listing created with the following id: ${result.insertedId}`);
 }
 
-export async function readDrugs() {
-    const cursor = await client.db('duothan').collection('drug').find();
+export async function readDrugs(query) {
+    const cursor = await client.db('duothan').collection('drug').aggregate([
+        {$match: query?query:{}}, 
+        {
+            $lookup:{
+            from:'pharmacy',
+            localField:'pln',
+            foreignField:'pharmacy_license_no',
+            as: 'pharmacyDetails'
+        }
+    }]);
     const results = await cursor.toArray();
- 
     return results;
-    if(results.length > 0) {
-        results.forEach((result)=>{
-            console.log(result);
-        });
-    } else{
-        console.log("empty set");
-    }
 }
 
 export async function readDrug(ndc) {
@@ -201,5 +202,6 @@ export async function logOutUser(email) {
     }
     return 0;
 } 
+
 
 // {"_id":{"$oid":"63f86453f92ee8536d113577"},"name":"test","pharmacy_license_no":"test","email":"test","address":"test","district":"test","province":"test","city":"test","operational_hours":"test","owner_nic":"test"}""

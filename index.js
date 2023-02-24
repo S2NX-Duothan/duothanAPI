@@ -85,7 +85,7 @@ app.post("/api/createDrug", async(req, res) => {
 app.post("/api/readDrugs", async(req, res) => {
     try{
         main().catch(console.error);
-        let result = await readDrugs();
+        let result = await readDrugs(req.body.query);
         res.status(200).send(result);
     } catch (err){
         console.log(err);
@@ -208,6 +208,13 @@ app.post("/api/logOutUser", async(req, res) => {
     }
 })
 
+app.post("/api/search", async (req, res) => {
+    try{
+
+    } catch (err) {
+
+    }
+})
 app.listen(port, ()=>{
     console.log("Listening on port", port);
 });
